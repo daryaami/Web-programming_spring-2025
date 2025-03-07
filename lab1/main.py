@@ -2,9 +2,9 @@ from typing import List
 from fastapi import FastAPI
 from connection import init_db, close_db
 from contextlib import asynccontextmanager
-from category_router import router as category_router
-from users_router import router as user_router
-from task_router import router as task_router
+from routers.category_router import router as category_router
+from routers.users_router import router as user_router
+from routers.task_router import router as task_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
