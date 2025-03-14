@@ -39,7 +39,6 @@ class TaskDefault(SQLModel):
     scheduled_datetime: Optional[datetime] = Field(default=None, sa_column=Column(DateTime(timezone=True)))
     priority: Priority = Priority.medium
 
-
 class Task(TaskDefault, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, sa_column_kwargs={"autoincrement": True})
     user_id: int = Field(foreign_key="user.id")

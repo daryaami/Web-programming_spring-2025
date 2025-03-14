@@ -69,10 +69,6 @@ async def change_password(
     await session.commit()
     return {"status": 200, "message": "Пароль успешно изменён"}
 
-@router.get("/me", response_model=UserResponse)
-async def read_users_me(current_user: User = Depends(get_current_user)) -> UserResponse:
-    return {"status": 200, "data": current_user}
-
 # Создание пользователя
 # @router.post("/", response_model=UserResponse)
 # async def users_create(user: UserDefault, session: AsyncSession = Depends(get_session)) -> UserResponse:
@@ -96,10 +92,17 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)) -
         raise HTTPException(status_code=404, detail="User not found")
     return {"status": 200, "data": user}
 
+# Получение информации о пользователе
+@router.get("/me", response_model=UserResponse)
+async def read_users_me(current_user: User = Depends(get_current_user)) -> UserResponse:
+    return {"status": 200, "data": current_user}
+
 # Обновление пользователя
-@router.put("/{user_id}", response_model=UserResponse)
-async def update_user(user_id: int, user_data: UserDefault, session: AsyncSession = Depends(get_session)) -> UserResponse:
-    user = await session.get(User, user_id)
+@router.put("/me", response_model=UserResponse)
+async def update_user(user_data: UserDefault, 
+                      current_user: User = Depends(get_current_user),
+                      session: AsyncSession = Depends(get_session)) -> UserResponse:
+    user = await session.get(User, current_user.id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     for key, value in user_data.dict().items():
@@ -109,9 +112,10 @@ async def update_user(user_id: int, user_data: UserDefault, session: AsyncSessio
     return {"status": 200, "data": user}
 
 # Удаление пользователя
-@router.delete("/{user_id}")
-async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)) -> MessageResponse:
-    user = await session.get(User, user_id)
+@router.delete("/me")
+async def delete_user(current_user: User = Depends(get_current_user),
+                      session: AsyncSession = Depends(get_session)) -> MessageResponse:
+    user = await session.get(User, current_user.id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     await session.delete(user)
